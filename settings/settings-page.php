@@ -20,6 +20,7 @@ function create_rest_endpoint(){
 }
 
 function create_api_post(WP_REST_Request $request){
+
     $body = json_decode($request->get_body(), true);
 
     $postdata = [
@@ -37,7 +38,7 @@ function create_api_post(WP_REST_Request $request){
 
     } else {
 
-        return new WP_Rest_Response('Could not create post', 500);
+        return new WP_Rest_Response('Error creating post', 500);
     }
 
 }
@@ -61,22 +62,34 @@ function api_settings_page_view(){
 
  ?>
     <script>
-        const handlePost = async (id) => {
-            console.log(id);
-            
-            const res = await fetch("<?php echo get_rest_url(null, 'v1/api-posts/create');?>", {
-                method: "POST",
-                body: JSON.stringify({ 
-                    title: document.getElementById(`post-title-${id}`).innerHTML,
-                    body: document.getElementById(`post-body-${id}`).innerHTML,
-                 }),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            },)
-            console.log(res);
-
-        }
+        const handlePost = async (element, id) => {
+            element.innerHTML = '<div class="spinner"></div>';
+                const res = await fetch("<?php echo get_rest_url(null, 'v1/api-posts/create');?>", {
+                    method: "POST",
+                    body: JSON.stringify({ 
+                        title: document.getElementById(`post-title-${id}`).innerHTML,
+                        body: document.getElementById(`post-body-${id}`).innerHTML,
+                     }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },).then((res)=> {
+                    if (res.ok){
+                        const check = document.createElement("span");
+                        check.classList.add("dashicons", "dashicons-saved");
+                        element.parentElement.replaceChildren(check);
+                    }
+                    else {
+                        const cross = document.createElement("span");
+                        cross.classList.add("dashicons", "dashicons-no");
+                        const textEl = document.createTextNode("Error");
+                        element.parentElement.replaceChildren(cross, textEl);
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                })
+            }
+        
 
         jQuery(document).ready(($) => {
 
@@ -101,8 +114,8 @@ function api_settings_page_view(){
                             <p style="font-weight: bold">Body </p>
                             <p id='post-body-${value.id}'>${value.body}</p>
                         </div>
-                        <div style="display: flex; align-items: center; min-width: 4rem; max-width: 4rem; justify-content: flex-end">
-                            <button id="import" onclick="handlePost(${value.id})">Import</button> 
+                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 4rem; max-width: 4rem; justify-content: center ">
+                            <button id="import" onclick="handlePost(this, ${value.id})">Import</button> 
                         </div>
                         
                         </li>
@@ -116,5 +129,11 @@ function api_settings_page_view(){
         });
 
     </script>
+    <style>
+            .spinner {
+                visibility: visible;
+                float: none;
+            }
+    </style>
  <?php
 }
