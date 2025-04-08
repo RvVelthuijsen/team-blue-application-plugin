@@ -23,8 +23,11 @@ if(!defined('ABSPATH')){
             require_once( APPLICATION_PLUGIN_PATH . '/vendor/autoload.php' );
         }
 
+        public function initialise(){
+            include_once(APPLICATION_PLUGIN_PATH . '/cpt/custom-post-type.php');
+        }
     }
 
     $applicationPlugin = new ApplicationPlugin;
-
+    $applicationPlugin->initialise();
  }
