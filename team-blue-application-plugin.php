@@ -20,11 +20,12 @@ if(!defined('ABSPATH')){
         public function __construct()
         {
             define('APPLICATION_PLUGIN_PATH', plugin_dir_path(__FILE__));
-            require_once( APPLICATION_PLUGIN_PATH . '/vendor/autoload.php' );
+            define('APPLICATION_PLUGIN_URL', plugin_dir_url(__FILE__));
         }
 
         public function initialise(){
             include_once(APPLICATION_PLUGIN_PATH . '/cpt/custom-post-type.php');
+            include_once(APPLICATION_PLUGIN_PATH . '/settings/settings-page.php');
         }
     }
 
